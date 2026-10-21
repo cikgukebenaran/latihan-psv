@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuiz PSV Tahun 6 - Kawaii Anime Neko 🌸🐱</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #FFF0F5;
+      --card-bg: #FFFFFF;
+      --primary: #FF69B4;
+      --primary-dark: #FF1493;
+      --secondary: #7000FF;
+      --accent: #FFD700;
+      --text-dark: #2B2D42;
+      --correct: #A8E6CF;
+      --wrong: #FF8B94;
+      --anime-border: 4px solid #2B2D42;
+      --font-heading: 'Fredoka One', cursive;
+      --font-body: 'Quicksand', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(#FFB6C1 15%, transparent 16%),
+        radial-gradient(#87CEFA 15%, transparent 16%);
+      background-size: 50px 50px;
+      background-position: 0 0, 25px 25px;
+      font-family: var(--font-body);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body.shake {
+      animation: shakeScreen 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shakeScreen {
+      10%, 90% { transform: translate3d(-3px, 0, 0); }
+      20%, 80% { transform: translate3d(5px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+      40%, 60% { transform: translate3d(8px, 0, 0); }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+      background: var(--card-bg);
+      border-radius: 24px;
+      border: var(--anime-border);
+      box-shadow: 8px 8px 0px #2B2D42;
+      padding: 25px;
+      position: relative;
+      z-index: 10;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 3px dashed #2B2D42;
+      padding-bottom: 12px;
+    }
+
+    .app-title {
+      font-family: var(--font-heading);
+      color: var(--primary-dark);
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 2px 2px 0px #FFB6C1;
+    }
+
+    .nav-btns { display: flex; gap: 8px; }
+
+    .btn-icon {
+      background: #FFF;
+      border: var(--anime-border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 2px 2px 0px #2B2D42;
+    }
+
+    .btn-icon:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #2B2D42; }
+
+    .timer-container {
+      margin-bottom: 15px;
+      background: #E0E0E0;
+      border-radius: 12px;
+      height: 20px;
+      overflow: hidden;
+      position: relative;
+      border: 2px solid #2B2D42;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #FF69B4, #7000FF);
+      transition: width 1s linear;
+    }
+
+    .timer-text {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #FFF;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    .cat-mascot-container {
+      text-align: center;
+      margin-bottom: 10px;
+      height: 95px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .cat-svg {
+      width: 85px;
+      height: 85px;
+      filter: drop-shadow(3px 3px 0px #2B2D42);
+      transition: transform 0.2s;
+    }
+
+    .cat-speech {
+      position: absolute;
+      top: 0;
+      right: 10%;
+      background: #FFF;
+      border: 2px solid #2B2D42;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      box-shadow: 3px 3px 0px #2B2D42;
+      max-width: 200px;
+      z-index: 5;
+    }
+
+    .progress-bar-wrap {
+      background: #FFF;
+      border: 2px solid #2B2D42;
+      border-radius: 12px;
+      height: 12px;
+      width: 100%;
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .question-text {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      color: #2B2D42;
+      margin-bottom: 15px;
+      line-height: 1.4;
+      text-align: center;
+      background: #FFF0F5;
+      padding: 12px;
+      border-radius: 16px;
+      border: 2px solid #2B2D42;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .options-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .option-btn {
+      background: #FFF;
+      border: 3px solid #2B2D42;
+      border-radius: 16px;
+      padding: 12px 15px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      box-shadow: 3px 3px 0px #2B2D42;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #E8F5E9;
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px #2B2D42;
+    }
+
+    .option-btn.correct {
+      background-color: var(--correct) !important;
+      border-color: #2B2D42 !important;
+      color: #000 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: var(--wrong) !important;
+      border-color: #2B2D42 !important;
+      color: #000 !important;
+    }
+
+    .explanation-box {
+      margin-top: 15px;
+      background: #FFF9C4;
+      border: 2px solid #2B2D42;
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 0.9rem;
+      box-shadow: 3px 3px 0px #2B2D42;
+      display: none;
+    }
+
+    .explanation-title {
+      font-weight: bold;
+      color: #D84315;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* REALISTIC CAT CLAW SCRATCH OVERLAY */
+    .scratch-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+      overflow: hidden;
+      border-radius: 24px;
+    }
+
+    .scratch-line {
+      position: absolute;
+      background: linear-gradient(90deg, transparent, #FF0055, #D50000, #FF0055, transparent);
+      height: 8px;
+      width: 140%;
+      top: 20%;
+      left: -20%;
+      border-radius: 50%;
+      box-shadow: 0 0 15px #FF0000, 0 0 30px #FF0055;
+      transform: rotate(-35deg) scaleX(0);
+      transform-origin: left center;
+    }
+
+    .scratch-line:nth-child(1) { top: 25%; animation: clawSwipe 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
+    .scratch-line:nth-child(2) { top: 45%; animation: clawSwipe 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) 0.05s forwards; }
+    .scratch-line:nth-child(3) { top: 65%; animation: clawSwipe 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) 0.1s forwards; }
+
+    @keyframes clawSwipe {
+      0% { transform: rotate(-35deg) scaleX(0); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: rotate(-35deg) scaleX(1); opacity: 0.9; }
+    }
+
+    .btn-main {
+      background: var(--primary);
+      color: white;
+      border: var(--anime-border);
+      border-radius: 18px;
+      padding: 12px 20px;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px #2B2D42;
+      transition: all 0.2s;
+      display: inline-block;
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .btn-main:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px #2B2D42;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .results-box { text-align: center; }
+
+    .score-badge {
+      font-family: var(--font-heading);
+      font-size: 3rem;
+      color: var(--primary-dark);
+      margin: 10px 0;
+      text-shadow: 3px 3px 0px #FFB6C1;
+    }
+
+    .leaderboard-box {
+      background: #E1F5FE;
+      border: 2px solid #2B2D42;
+      border-radius: 16px;
+      padding: 15px;
+      margin-top: 20px;
+      text-align: left;
+      box-shadow: 4px 4px 0px #2B2D42;
+    }
+
+    .leaderboard-title {
+      font-family: var(--font-heading);
+      color: #0277BD;
+      margin-bottom: 10px;
+    }
+
+    .leaderboard-list {
+      list-style-position: inside;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .leaderboard-list li {
+      padding: 5px 0;
+      border-bottom: 1px dashed #B3E5FC;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .input-name-group {
+      display: flex;
+      gap: 8px;
+      margin: 15px 0;
+    }
+
+    .input-name-group input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #2B2D42;
+      border-radius: 12px;
+      font-family: var(--font-body);
+      font-weight: bold;
+    }
+
+    .input-name-group button {
+      width: auto;
+      margin-top: 0;
+      padding: 0 18px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="app-title">🌸 PSV Tahun 6 (SK LKTP Nitar 2)</div>
+    <div class="nav-btns">
+      <button class="btn-icon" id="btn-sound" title="Bunyi On/Off">🔊</button>
+      <button class="btn-icon" id="btn-github" title="Panduan GitHub">🚀</button>
+    </div>
+  </header>
+
+  <div id="scratch-overlay" class="scratch-overlay">
+    <div class="scratch-line"></div>
+    <div class="scratch-line"></div>
+    <div class="scratch-line"></div>
+  </div>
+
+  <!-- SCREEN: START -->
+  <div id="screen-start" class="screen active">
+    <div class="cat-mascot-container">
+      <div class="cat-speech">Konichiwa! Jom jawab 30 soalan PSV! 🐾</div>
+      <svg class="cat-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="35" fill="#FFB6C1" stroke="#2B2D42" stroke-width="3"/>
+        <polygon points="20,25 32,8 42,22" fill="#FF69B4" stroke="#2B2D42" stroke-width="3"/>
+        <polygon points="80,25 68,8 58,22" fill="#FF69B4" stroke="#2B2D42" stroke-width="3"/>
+        <ellipse cx="38" cy="45" rx="5" ry="8" fill="#2B2D42"/>
+        <ellipse cx="62" cy="45" rx="5" ry="8" fill="#2B2D42"/>
+        <circle cx="40" cy="42" r="2" fill="#FFF"/>
+        <circle cx="64" cy="42" r="2" fill="#FFF"/>
+        <polygon points="50,52 47,48 53,48" fill="#FF1493"/>
+        <path d="M 43 56 Q 50 62 57 56" stroke="#2B2D42" stroke-width="3" fill="none"/>
+      </svg>
+    </div>
+
+    <h2 style="text-align:center; font-family:var(--font-heading); margin-bottom:10px;">Latihan Pengukuhan PSV</h2>
+    <p style="text-align:center; color:#555; margin-bottom:15px; font-size:0.95rem;">30 Soalan · Masa 20 saat setiap soalan · Kena cakar jika salah!</p>
+
+    <button class="btn-main" onclick="startQuiz()">Mula Kuiz Sekarang! 🎯</button>
+
+    <div class="leaderboard-box">
+      <div class="leaderboard-title">🏆 Top 10 Markah Tertinggi</div>
+      <ol id="start-leaderboard" class="leaderboard-list">
+        <li><span>Belum ada rekod</span> <span>-</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- SCREEN: QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="timer-container">
+      <div id="timer-bar" class="timer-bar"></div>
+      <div id="timer-text" class="timer-text">20s</div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div id="progress-bar" class="progress-bar-fill"></div>
+    </div>
+
+    <div class="cat-mascot-container">
+      <div class="cat-speech" id="quiz-cat-speech">Fikir betul-betul tau! 🎨</div>
+      <svg id="quiz-cat-svg" class="cat-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="35" fill="#FFB6C1" stroke="#2B2D42" stroke-width="3"/>
+        <polygon points="20,25 32,8 42,22" fill="#FF69B4" stroke="#2B2D42" stroke-width="3"/>
+        <polygon points="80,25 68,8 58,22" fill="#FF69B4" stroke="#2B2D42" stroke-width="3"/>
+        <ellipse cx="38" cy="45" rx="5" ry="8" fill="#2B2D42"/>
+        <ellipse cx="62" cy="45" rx="5" ry="8" fill="#2B2D42"/>
+        <circle cx="40" cy="42" r="2" fill="#FFF"/>
+        <circle cx="64" cy="42" r="2" fill="#FFF"/>
+        <polygon points="50,52 47,48 53,48" fill="#FF1493"/>
+        <path d="M 43 56 Q 50 62 57 56" stroke="#2B2D42" stroke-width="3" fill="none"/>
+      </svg>
+    </div>
+
+    <div id="question-text" class="question-text">Soalan loading...</div>
+    <div id="options-grid" class="options-grid"></div>
+
+    <div id="explanation-box" class="explanation-box">
+      <div class="explanation-title">💡 Huraian Jawapan Betul:</div>
+      <div id="explanation-text"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="results-box">
+      <h2 style="font-family:var(--font-heading);">Sugoi! Tamat Kuiz! 🎉</h2>
+      
+      <div id="final-percentage" class="score-badge">0%</div>
+      <div style="font-weight:bold; font-size:1.1rem; margin-bottom:15px;">Anda mendapat <span id="final-score-text" style="color:var(--primary-dark);">0 / 30</span> betul!</div>
+
+      <div id="save-score-container" class="input-name-group">
+        <input type="text" id="player-name-input" placeholder="Masukkan nama murid..." maxlength="15">
+        <button class="btn-main" onclick="saveScore()">Simpan</button>
+      </div>
+
+      <button class="btn-main" onclick="startQuiz()" style="background:#87CEFA;">Cuba Lagi 🔄</button>
+
+      <div class="leaderboard-box">
+        <div class="leaderboard-title">🏆 Carta Top 10 High Scores</div>
+        <ol id="result-leaderboard" class="leaderboard-list"></ol>
+        <button onclick="resetLeaderboard()" style="margin-top:10px; background:none; border:none; color:#D32F2F; font-size:0.8rem; cursor:pointer; text-decoration:underline; width:100%;">Reset Rekod (Guru)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: GITHUB GUIDE -->
+  <div id="screen-github" class="screen">
+    <h2 style="font-family:var(--font-heading); margin-bottom:15px;">Cara Upload ke GitHub Pages</h2>
+    <ol style="padding-left:20px; line-height:1.6; margin-bottom:15px; font-size:0.9rem;">
+      <li>Simpan semua kod fail ini sebagai <strong>index.html</strong>.</li>
+      <li>Buka akaun <strong>GitHub.com</strong> dan cipta <strong>New Repository</strong>.</li>
+      <li>Muat naik fail <code>index.html</code> tersebut.</li>
+      <li>Pergi ke <strong>Settings</strong> > <strong>Pages</strong>.</li>
+      <li>Pilih branch <strong>main</strong> / <strong>master</strong> dan tekan <strong>Save</strong>.</li>
+    </ol>
+    <button class="btn-main" onclick="showScreen('screen-start')">Kembali ke Utama</button>
+  </div>
+
+</div>
+
+<script>
+  // 30 SOALAN LENGKAP PSV TAHUN 6 + HURAIAN
+  const questions = [
+    { q: "1. Apakah unsur seni yang terhasil daripada cantuman beberapa garisan?", opts: ["Warna", "Rupa", "Jalinan", "Ruang"], ans: 1, exp: "Rupa terhasil apabila penghujung sesebuah garisan bertemu dengan permulaannya." },
+    { q: "2. Antara berikut, yang manakah merupakan unsur seni?", opts: ["Imbangan", "Penegasan", "Harmoni", "Bentuk"], ans: 3, exp: "Bentuk ialah salah satu daripada 6 Unsur Seni (Garisan, Rupa, Bentuk, Jalinan, Ruang, Warna)." },
+    { q: "3. Apakah yang dimaksudkan dengan jalinan tampak?", opts: ["Permukaan yang boleh disentuh dan dirasai", "Kesan permukaan yang dilihat tetapi tidak dapat dirasai melalui sentuhan", "Susunan warna yang berulang", "Bentuk yang mempunyai isipadu"], ans: 1, exp: "Jalinan tampak hanya boleh dilihat oleh mata tetapi terasa licin apabila disentuh (contoh: corak kertas pembalut)." },
+    { q: "4. Prinsip rekaan yang menunjukkan perbezaan ketara antara dua unsur dikenali sebagai", opts: ["Harmoni", "Imbangan", "Kontra", "Kesatuan"], ans: 2, exp: "Kontra wujud apabila unsur seni yang digunakan mempunyai ciri-ciri berlawanan/berbeza ketara." },
+    { q: "5. Objek lebih besar di hadapan dan lebih kecil di belakang menunjukkan...", opts: ["Ruang", "Jalinan", "Corak", "Harmoni"], ans: 0, exp: "Perubahan saiz objek mengikut jarak mewujudkan kesan ilusi ruang (perspektif)." },
+    { q: "6. Apakah fungsi penegasan dalam karya seni?", opts: ["Menjadikan semua objek sama saiz", "Menarik perhatian kepada bahagian tertentu", "Menghilangkan semua warna", "Menjadikan karya tidak seimbang"], ans: 1, exp: "Penegasan bertindak sebagai 'focal point' untuk menarik tumpuan pemerhati." },
+    { q: "7. Warna sekunder yang terhasil daripada campuran merah dan kuning ialah", opts: ["Hijau", "Ungu", "Jingga", "Biru"], ans: 2, exp: "Campuran warna asas Merah + Kuning = Jingga." },
+    { q: "8. Apakah warna yang terhasil daripada campuran warna biru dengan kuning?", opts: ["Jingga", "Hijau", "Ungu", "Merah"], ans: 1, exp: "Campuran warna asas Biru + Kuning = Hijau." },
+    { q: "9. Warna yang sering dikaitkan dengan perasaan panas ialah", opts: ["Biru", "Hijau", "Ungu kebiruan", "Jingga"], ans: 3, exp: "Kumpulan warna panas termasuklah Merah, Kuning, dan Jingga." },
+    { q: "10. Teknik menghasilkan gambar dengan menampal cebisan kertas/bahan pada permukaan dikenali sebagai", opts: ["Kolaj", "Catan", "Arca", "Cetakan"], ans: 0, exp: "Kolaj ialah teknik guntingan dan tampalan pelbagai bahan pada permukaan 2D." },
+    { q: "11. Apakah alat utama untuk menghasilkan garisan menggunakan teknik catan cat air?", opts: ["Pisau ukir", "Berus", "Canting batik sahaja", "Pahat"], ans: 1, exp: "Berus digunakan untuk menyapu cat air di atas kertas." },
+    { q: "12. Memindahkan dakwat daripada blok bercorak ke kertas dikenali sebagai", opts: ["Lukisan", "Catan", "Cetakan", "Anyaman"], ans: 2, exp: "Cetakan memindahkan imej berulangan daripada blok cetakan ke permukaan lain." },
+    { q: "13. Bahan kitar semula yang lazim digunakan untuk menghasilkan arca ialah", opts: ["Air sahaja", "Kotak dan botol plastik", "Pensel sahaja", "Cat air sahaja"], ans: 1, exp: "Kotak dan botol plastik mudah dibentuk menjadi binaan arca 3D." },
+    { q: "14. Apakah tujuan penggunaan garisan dalam lukisan?", opts: ["Membentuk rupa dan menunjukkan pergerakan", "Menghilangkan semua bentuk", "Mengurangkan saiz kertas", "Menjadikan semua warna sama"], ans: 0, exp: "Garisan digunakan untuk membina rupa, bentuk, jalinan, dan ilusi pergerakan." },
+    { q: "15. Corak yang dihasilkan melalui susunan motif secara berulang dikenali sebagai", opts: ["Corak tidak terancang sahaja", "Corak terancang", "Lukisan perspektif", "Arca bebas"], ans: 1, exp: "Corak terancang dibina mengikut susunan grid/motif yang teratur." },
+    { q: "16. Alat untuk melakar dan menyapu lilin dalam proses batik canting ialah", opts: ["Penggelek", "Berus gigi", "Canting", "Gunting"], ans: 2, exp: "Canting mengandungi cawan tembaga untuk menampung lilin cair." },
+    { q: "17. Apakah fungsi lilin dalam penghasilan batik tradisional?", opts: ["Menyerap semua warna", "Menghalang warna daripada meresap pada bahagian tertentu", "Memotong kain", "Menjadikan kain berlubang"], ans: 1, exp: "Lilin bertindak sebagai bahan penghalang (resist) serapan pewarna pada kain." },
+    { q: "18. Aktiviti anyaman biasanya menggunakan teknik", opts: ["Menyilang bahan secara berselang-seli", "Mencampurkan cat air", "Mengukir permukaan batu", "Menampal gambar sahaja"], ans: 0, exp: "Anyaman dibina dengan menyilang bilah lusi dan pakan secara berselang-seli." },
+    { q: "19. Yang manakah contoh bahan semula jadi untuk menghasilkan kraf?", opts: ["Plastik sintetik", "Polistirena", "Mengkuang", "Pita pelekat"], ans: 2, exp: "Daun mengkuang ialah bahan tumbuhan semula jadi untuk kraf anyaman." },
+    { q: "20. Mengapakah motif flora sering digunakan dalam kraf tradisional Malaysia?", opts: ["Kerana motif flora tidak mempunyai bentuk", "Kerana tumbuh-tumbuhan menjadi sumber inspirasi corak", "Kerana motif flora hanya menggunakan warna hitam", "Kerana motif flora tidak boleh diulang"], ans: 1, exp: "Alam semula jadi seperti bunga dan daun menjadi sumber ilham utama pembuat kraf." },
+    { q: "21. Apakah maksud apresiasi seni?", opts: ["Proses membuat jualan barangan seni", "Penghargaan, penilaian, dan pemahaman terhadap sesuatu karya seni", "Aktiviti merosakkan bahan seni", "Proses mencampur cat tanpa tujuan"], ans: 1, exp: "Apresiasi seni merangkumi penilaian, menceritakan, dan menghayati keindahan karya." },
+    { q: "22. Bagaimanakah cara menunjukkan penghargaan terhadap karya seni rakan?", opts: ["Meniru karya tersebut tanpa kebenaran", "Memberikan kritikan positif dan membina", "Membuang karya tersebut", "Menconteng karya tersebut"], ans: 1, exp: "Pujian dan teguran mesra membina keyakinan dan mutu karya seni rakan." },
+    { q: "23. Apakah langkah pertama sebelum menghasilkan sesebuah karya seni?", opts: ["Menjual karya", "Mengemas ruang kerja", "Sumbangsaran idea dan membuat lakaran", "Mempamerkan karya yang siap"], ans: 2, exp: "Eksplorasi idea dan lakaran perkembangan membantu merancang karya yang mantap." },
+    { q: "24. Menjaga kebersihan dan keselamatan kawasan kerja bertujuan untuk", opts: ["Mengelakkan kemalangan dan memastikan suasana selesa", "Mempercepatkan pameran", "Menghabiskan bahan seni", "Memastikan karya bersaiz besar"], ans: 0, exp: "Disiplin keselamatan mengelakkan bahaya alatan tajam dan kecederaan." },
+    { q: "25. Karya seni tiga dimensi (3D) berbeza daripada 2D kerana mempunyai", opts: ["Garisan sahaja", "Warna sahaja", "Isipadu dan ruang sebenar", "Rupa geometri sahaja"], ans: 2, exp: "Karya 3D mempunyai panjang, lebar, kedalaman serta boleh dilihat dari pelbagai sudut." },
+    { q: "26. Apakah yang dimaksudkan dengan ton warna dalam sesebuah lukisan?", opts: ["Perubahan kadar terang atau gelap sesuatu warna", "Campuran semua warna asas menjadi hitam", "Penggunaan warna primer sahaja", "Garisan tebal di sekeliling lukisan"], ans: 0, exp: "Ton warna terhasil dengan menambah putih (terang) atau hitam (gelap)." },
+    { q: "27. Antara berikut, yang manakah merupakan contoh kraf tradisional Malaysia?", opts: ["Catan minyak", "Ukiran kayu", "Komik digital", "Poster cetakan komputer"], ans: 1, exp: "Ukiran kayu ialah seni kraf warisan tradisional melayu." },
+    { q: "28. Apakah kegunaan lakaran perkembangan idea dalam proses PSV?", opts: ["Untuk dijadikan bahan buangan", "Membantu memilih reka bentuk atau komposisi yang terbaik", "Menggantikan proses mewarna", "Memastikan karya tidak mempunyai unsur seni"], ans: 1, exp: "Lakaran membolehkan pengkarya membandingkan reka bentuk terbaik." },
+    { q: "29. Bagaimanakah imbangan simetri dihasilkan dalam sesebuah rekaan?", opts: ["Bahagian kiri dan kanan gubahan kelihatan berbeza sepenuhnya", "Bahagian kiri dan kanan gubahan kelihatan sama atau seimbang", "Penggunaan warna gelap di sebelah bahagian sahaja", "Menghilangkan bentuk objek"], ans: 1, exp: "Imbangan simetri mempunyai gubahan yang sama di kedua-dua belah paksi." },
+    { q: "30. Mengapakah disiplin dan ketelitian penting semasa aktiviti PSV?", opts: ["Supaya hasil karya lebih kemas, berkualiti, dan selamat dihasilkan", "Supaya dapat menyelesaikan aktiviti paling awal", "Supaya tidak perlu menggunakan bahan seni", "Supaya karya menjadi lebih kecil"], ans: 0, exp: "Ketelitian menghasilkan karya yang berkualiti tinggi dan kekal lama." }
+  ];
+
+  let currentQIndex = 0;
+  let score = 0;
+  let timerInterval = null;
+  let timeLeft = 20;
+  let soundEnabled = true;
+  let audioCtx = null;
+
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  document.getElementById('btn-sound').onclick = () => {
+    soundEnabled = !soundEnabled;
+    document.getElementById('btn-sound').innerText = soundEnabled ? '🔊' : '🔇';
+  };
+
+  document.getElementById('btn-github').onclick = () => showScreen('screen-github');
+
+  window.onload = () => renderLeaderboards();
+
+  function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  // CUTE HAPPY MEOW SOUND
+  function playMeowSound() {
+    if (!soundEnabled) return;
+    initAudio();
+    const now = audioCtx.currentTime;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(500, now);
+    osc.frequency.exponentialRampToValueAtTime(950, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(600, now + 0.35);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.35, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.35);
+  }
+
+  // REALISTIC ANGRY CAT GROWL & HISS SOUND
+  function playAngryCatSound() {
+    if (!soundEnabled) return;
+    initAudio();
+    const now = audioCtx.currentTime;
+
+    // 1. Angry Low Growl
+    const growlOsc = audioCtx.createOscillator();
+    const growlGain = audioCtx.createGain();
+    growlOsc.type = 'sawtooth';
+    growlOsc.frequency.setValueAtTime(140, now);
+    growlOsc.frequency.linearRampToValueAtTime(90, now + 0.4);
+
+    growlGain.gain.setValueAtTime(0, now);
+    growlGain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+    growlGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+    growlOsc.connect(growlGain);
+    growlGain.connect(audioCtx.destination);
+    growlOsc.start(now);
+    growlOsc.stop(now + 0.4);
+
+    // 2. Sharp Cat Hiss
+    const bufferSize = audioCtx.sampleRate * 0.3;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(2500, now);
+
+    const hissGain = audioCtx.createGain();
+    hissGain.gain.setValueAtTime(0, now);
+    hissGain.gain.linearRampToValueAtTime(0.45, now + 0.05);
+    hissGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+    noise.connect(filter);
+    filter.connect(hissGain);
+    hissGain.connect(audioCtx.destination);
+    noise.start(now);
+  }
+
+  function startQuiz() {
+    score = 0;
+    currentQIndex = 0;
+    showScreen('screen-quiz');
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    if (currentQIndex >= questions.length) {
+      finishQuiz();
+      return;
+    }
+
+    clearInterval(timerInterval);
+    timeLeft = 20;
+    updateTimerUI();
+
+    document.getElementById('explanation-box').style.display = 'none';
+
+    const qData = questions[currentQIndex];
+    document.getElementById('question-text').innerText = qData.q;
+    
+    const progress = ((currentQIndex) / questions.length) * 100;
+    document.getElementById('progress-bar').style.width = progress + '%';
+
+    document.getElementById('quiz-cat-speech').innerText = `Soalan ${currentQIndex + 1} daripada 30! 🐾`;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+
+    qData.opts.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
+      btn.onclick = () => selectAnswer(idx);
+      grid.appendChild(btn);
+    });
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerUI();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        handleTimeout();
+      }
+    }, 1000);
+  }
+
+  function updateTimerUI() {
+    const timerBar = document.getElementById('timer-bar');
+    const timerText = document.getElementById('timer-text');
+    const percentage = (timeLeft / 20) * 100;
+
+    timerBar.style.width = percentage + '%';
+    timerText.innerText = timeLeft + 's';
+
+    if (timeLeft <= 5) {
+      timerBar.style.background = '#FF3366';
+    } else {
+      timerBar.style.background = 'linear-gradient(90deg, #FF69B4, #7000FF)';
+    }
+  }
+
+  function selectAnswer(selectedIdx) {
+    clearInterval(timerInterval);
+    const qData = questions[currentQIndex];
+    const btns = document.querySelectorAll('.option-btn');
+
+    btns.forEach(b => b.disabled = true);
+
+    if (selectedIdx === qData.ans) {
+      score++;
+      btns[selectedIdx].classList.add('correct');
+      document.getElementById('quiz-cat-speech').innerText = "Kawaii! Jawapan Betul! 🌸";
+      playMeowSound();
+      
+      setTimeout(() => {
+        currentQIndex++;
+        loadQuestion();
+      }, 1200);
+    } else {
+      btns[selectedIdx].classList.add('wrong');
+      btns[qData.ans].classList.add('correct');
+      triggerScratchAndShake();
+      document.getElementById('quiz-cat-speech').innerText = "Grrr! Kena cakar sebab salah! 😾";
+      playAngryCatSound();
+
+      document.getElementById('explanation-text').innerText = qData.exp;
+      document.getElementById('explanation-box').style.display = 'block';
+
+      setTimeout(() => {
+        currentQIndex++;
+        loadQuestion();
+      }, 3500);
+    }
+  }
+
+  function handleTimeout() {
+    const qData = questions[currentQIndex];
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(b => b.disabled = true);
+    btns[qData.ans].classList.add('correct');
+
+    triggerScratchAndShake();
+    document.getElementById('quiz-cat-speech').innerText = "Hisss! Masa Habis! 😾";
+    playAngryCatSound();
+
+    document.getElementById('explanation-text').innerText = qData.exp;
+    document.getElementById('explanation-box').style.display = 'block';
+
+    setTimeout(() => {
+      currentQIndex++;
+      loadQuestion();
+    }, 3500);
+  }
+
+  function triggerScratchAndShake() {
+    const overlay = document.getElementById('scratch-overlay');
+    overlay.style.display = 'block';
+    document.body.classList.add('shake');
+
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      document.body.classList.remove('shake');
+    }, 500);
+  }
+
+  function finishQuiz() {
+    showScreen('screen-result');
+    const percentage = Math.round((score / questions.length) * 100);
+    
+    document.getElementById('final-percentage').innerText = percentage + '%';
+    document.getElementById('final-score-text').innerText = `${score} / ${questions.length}`;
+
+    if (percentage >= 70) {
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+    }
+
+    renderLeaderboards();
+  }
+
+  function getLeaderboard() {
+    return JSON.parse(localStorage.getItem('psv_anime_leaderboard')) || [];
+  }
+
+  function saveScore() {
+    const nameInput = document.getElementById('player-name-input');
+    const name = nameInput.value.trim() || 'Murid PSV';
+
+    const board = getLeaderboard();
+    board.push({ name, score, total: questions.length });
+    
+    board.sort((a,b) => (b.score/b.total) - (a.score/a.total));
+    const top10 = board.slice(0, 10);
+
+    localStorage.setItem('psv_anime_leaderboard', JSON.stringify(top10));
+    document.getElementById('save-score-container').style.display = 'none';
+    renderLeaderboards();
+  }
+
+  function renderLeaderboards() {
+    const board = getLeaderboard();
+    const format = (items) => {
+      if (items.length === 0) return '<li><span>Belum ada rekod</span> <span>-</span></li>';
+      return items.map(item => `<li><span>${item.name}</span> <span>${item.score}/${item.total}</span></li>`).join('');
+    };
+
+    document.getElementById('start-leaderboard').innerHTML = format(board);
+    document.getElementById('result-leaderboard').innerHTML = format(board);
+  }
+
+  function resetLeaderboard() {
+    if (confirm("Padam semua rekod markah murid?")) {
+      localStorage.removeItem('psv_anime_leaderboard');
+      renderLeaderboards();
+    }
+  }
+</script>
+</body>
+</html>
